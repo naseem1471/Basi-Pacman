@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>PacMan</title>	
+	<style>
+		/* All of our CSS code goes here... */
+		/** { 
+			outline: 1px dotted purple; 
+		}*/
+
+		.wall {
+			width: 50px;
+			height: 50px;
+			background-image: url('wall.png');
+			display: inline-block;
+			
+		}
+		.coin {
+			width: 50px;
+			height: 50px;
+			background-image: url('coin.png');
+			display: inline-block;
+		}
+		.ground {
+			width: 50px;
+			height: 50px;
+			background-image: url('bg.png');
+			display: inline-block;
+		}
+		.ghost {
+			width: 50px;
+			height: 50px;
+			background-image: url('ghost1.png');
+			display: inline-block;
+		}
+		.pacman {
+			width: 50px;
+			height: 50px;
+			background-image: url('pacman.png');
+			display: inline-block;
+		}
+
+		div {
+			line-height: 0px;
+		}
+
+		#score {
+			font-size: 20px;
+			margin-left: 20px;
+			padding-top: 30px;
+		}
+
+		#highScore {
+			font-size: 20px;
+			margin-left: 20px;
+			padding-top: 30px;
+		}
+
+		
+
+
+		/* End of CSS */
+	</style>
+</head>
+<body>
+	<!-- All of our HTML code goes here... -->
+	
+	<div id='world'>
+		
+	</div>
+	<div id="score">Score: 0</div>
+	<div id="highScore">High Score: 0</div>
+
+	<!-- End of HTML-->
+</body>
+<script>
+	// Function to initialize the game
+function initGame() {
+    // Initialize score and high score
+    score = 0;
+    updateScore(); // Update score display
+
+    // Initialize high score
+    if (localStorage.getItem('highScore')) {
+    	updateHighScore(); // Update high score display
+    }
+}
+
+function updateHighScore() {
+    var highScoreElement = document.getElementById('highScore');
+    highScoreElement.textContent = `High Score: ${localStorage.getItem('highScore')}`;
+}
+
+	// Call initGame when the page loads
+ 	window.onload = function() {
+    initGame();
+};
+	// All of our JavaScript code goes here... 
+	
+	// 1 => <div class='wall'></div>
+	// 2 => <div class='coin'></div>
+	// 3 => <div class='ground'></div>
+	// 4 => <div class='ghost'></div>
+	// 5 => <div class='pacman'></div>
+	
+
+	pacman = {
+		x: 6,
+		y: 4
+	}
+
+	map = [ 
+		[1,1,1,1,1,1,1,1,1,1,1,1,1], 
+		[1,2,2,4,2,2,1,2,2,2,2,2,1], 
+		[1,2,1,1,1,2,1,2,1,1,1,2,1], 
+		[1,2,1,2,2,2,2,2,2,2,1,2,1], 
+		[1,2,2,2,1,1,5,1,1,2,2,2,1], 
+		[1,2,1,2,2,2,2,2,2,2,1,2,1], 
+		[1,2,1,1,2,2,1,2,2,1,1,2,1], 
+		[1,2,2,2,2,2,1,2,2,2,2,2,1], 
+		[1,1,1,1,1,1,1,1,1,4,1,1,1]
+	]
+
+	var el = document.getElementById('world');
+	var scoreElement = document.getElementById('score');
+	var score = 0; // Initial score
+
+
+
+
+// Function to update the score display
+function updateScore() {
+    scoreElement.textContent = `Score: ${score}`;
+}
+
+	
+	
+function drawWorld(){
+    el.innerHTML = '';
+    for(var row = 0; row < map.length ; row++) {
+        for(var column = 0; column < map[row].length ; column++) {		
+            if (map[row][column] === 1) {
+                el.innerHTML += "<div class='wall'></div>";
+            }
+            else if (map[row][column] === 2) {
+                el.innerHTML += "<div class='coin'></div>";
+            }
+            else if (map[row][column] === 3) {
+                el.innerHTML += "<div class='ground'></div>";
+            }
+            else if (map[row][column] === 4) {
+                el.innerHTML += "<div class='ghost'></div>";
+            }
+            else if (map[row][column] === 5) {
+                el.innerHTML += "<div class='pacman'></div>";
+            }
+        }
+        el.innerHTML += "<br>";
+    }
+}
+
+drawWorld();
+
+document.onkeydown = function(event) {
+    if (event.keyCode === 37 && map[pacman.y][pacman.x - 1] !== 1) { // PACMAN MOVE LEFT
+        movePacman(pacman.y, pacman.x - 1);
+    } else if (event.keyCode === 38 && map[pacman.y - 1][pacman.x] !== 1) { // PACMAN MOVE UP
+        movePacman(pacman.y - 1, pacman.x);
+    } else if (event.keyCode === 39 && map[pacman.y][pacman.x + 1] !== 1) { // PACMAN MOVE RIGHT
+        movePacman(pacman.y, pacman.x + 1);
+    } else if (event.keyCode === 40 && map[pacman.y + 1][pacman.x] !== 1) { // PACMAN MOVE DOWN
+        movePacman(pacman.y + 1, pacman.x);
+    }
+};
+
+function movePacman(newY, newX) {
+    if (map[newY][newX] === 2) {
+        score++; // Increment the score if Pacman collects a coin
+        updateScore();
+    } else if (map[newY][newX] === 4) {
+        if (!localStorage.getItem('highScore') || score > localStorage.getItem('highScore')) {
+        localStorage.setItem('highScore', score);
+        updateHighScore();
+    }
+
+    gameOver();
+    return; // Exit function to prevent further movement
+}
+    map[pacman.y][pacman.x] = 3;
+    pacman.y = newY;
+    pacman.x = newX;
+    map[pacman.y][pacman.x] = 5;
+
+    drawWorld();
+
+	console.log(map);
+}
+
+function gameOver() {
+	alert(`Game over! Score: ${score}`);
+	window.location.reload(); // Reload the page
+}
+
+
+
+	
+	
+	
+		
+	
+
+
+
+	
+
+	// End of JavaScript
+</script>
+</html>
