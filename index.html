@@ -125,6 +125,40 @@ function updateHighScore() {
 	var scoreElement = document.getElementById('score');
 	var score = 0; // Initial score
 
+	 // Mobile touch controls
+	 var touchStartX, touchStartY;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].pageX;
+    touchStartY = e.touches[0].pageY;
+  });
+
+  	document.addEventListener('touchend', function(e) {
+    var touchEndX = e.changedTouches[0].pageX;
+    var touchEndY = e.changedTouches[0].pageY;
+
+    var swipeDiffX = touchEndX - touchStartX;
+    var swipeDiffY = touchEndY - touchStartY;
+
+    if (Math.abs(swipeDiffX) > Math.abs(swipeDiffY)) {
+      // Horizontal swipe
+      if (swipeDiffX > 0 && map[pacman.y][pacman.x + 1] !== 1) {
+        // Move right
+        movePacman(pacman.y, pacman.x + 1);
+      } else if (swipeDiffX < 0 && map[pacman.y][pacman.x - 1] !== 1) {
+        // Move left
+        movePacman(pacman.y, pacman.x - 1);
+      }
+    } else {
+      // Vertical swipe
+      if (swipeDiffY > 0 && map[pacman.y + 1][pacman.x] !== 1) {
+        // Move down
+        movePacman(pacman.y + 1, pacman.x);
+      } else if (swipeDiffY < 0 && map[pacman.y - 1][pacman.x] !== 1) {
+        // Move up
+        movePacman(pacman.y - 1, pacman.x);
+      }
+    }
+  });
 
 
 
@@ -182,7 +216,7 @@ function movePacman(newY, newX) {
         localStorage.setItem('highScore', score);
         updateHighScore();
     }
-
+	
     gameOver();
     return; // Exit function to prevent further movement
 }
